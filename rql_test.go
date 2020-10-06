@@ -126,6 +126,29 @@ func TestParse(t *testing.T) {
 		wantOut *Params
 	}{
 		{
+			name: "supports []string",
+			conf: Config{
+				Model: new(struct {
+					Name   string   `rql:"filter"`
+					Powers []string `rql:"filter"`
+				}),
+				DefaultLimit: 25,
+			},
+			input: []byte(`{
+				"filter": {
+					"name": "Superman",
+					"powers": {
+						"$contains": ["x-ray vision","laser eyes"]
+					}
+				}
+			}`),
+			wantOut: &Params{
+				Limit:      25,
+				FilterExp:  "name = ? AND powers \\? ?",
+				FilterArgs: []interface{}{"Superman", []string{"x-ray vision", "laser eyes"}},
+			},
+		},
+		{
 			name: "simple test",
 			conf: Config{
 				Model: new(struct {
