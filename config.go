@@ -16,15 +16,16 @@ func (o Op) SQL() string {
 
 // Operators that support by rql.
 const (
-	EQ   = Op("eq")   // =
-	NEQ  = Op("neq")  // <>
-	LT   = Op("lt")   // <
-	GT   = Op("gt")   // >
-	LTE  = Op("lte")  // <=
-	GTE  = Op("gte")  // >=
-	LIKE = Op("like") // LIKE "PATTERN"
-	OR   = Op("or")   // disjunction
-	AND  = Op("and")  // conjunction
+	EQ       = Op("eq")       // =
+	NEQ      = Op("neq")      // <>
+	LT       = Op("lt")       // <
+	GT       = Op("gt")       // >
+	LTE      = Op("lte")      // <=
+	GTE      = Op("gte")      // >=
+	LIKE     = Op("like")     // LIKE "PATTERN"
+	OR       = Op("or")       // disjunction
+	AND      = Op("and")      // conjunction
+	CONTAINS = Op("contains") // postgres jsonb operator '?'
 )
 
 // Default values for configuration.
@@ -48,15 +49,16 @@ var (
 		'-': "desc",
 	}
 	opFormat = map[Op]string{
-		EQ:   "=",
-		NEQ:  "<>",
-		LT:   "<",
-		GT:   ">",
-		LTE:  "<=",
-		GTE:  ">=",
-		LIKE: "LIKE",
-		OR:   "OR",
-		AND:  "AND",
+		EQ:       "=",
+		NEQ:      "<>",
+		LT:       "<",
+		GT:       ">",
+		LTE:      "<=",
+		GTE:      ">=",
+		LIKE:     "LIKE",
+		OR:       "OR",
+		AND:      "AND",
+		CONTAINS: "\\?|",
 	}
 )
 

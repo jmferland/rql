@@ -117,6 +117,7 @@ type field struct {
 	// Validation for the type. for example, unit8 greater than or equal to 0.
 	ValidateFn func(interface{}) error
 	// ConvertFn converts the given value to the type value.
+	// TODO: rename CovertFn ConvertFn
 	CovertFn func(interface{}) interface{}
 }
 
@@ -291,6 +292,16 @@ func (p *Parser) parseField(sf reflect.StructField) error {
 	}
 	var filterOps []Op
 	switch typ := indirect(sf.Type); typ.Kind() {
+	case reflect.Slice:
+		switch elemTyp := typ.Elem(); elemTyp.Kind() {
+		case reflect.String:
+			f.CovertFn = convertStringSlice
+			f.ValidateFn = validateSlice(validateString)
+		default:
+			// TODO: better error message
+			return fmt.Errorf("rql: field type for %q is not supported", sf.Name)
+		}
+		filterOps = append(filterOps, EQ, NEQ, CONTAINS)
 	case reflect.Bool:
 		f.ValidateFn = validateBool
 		filterOps = append(filterOps, EQ, NEQ)
@@ -517,6 +528,39 @@ func errorType(v interface{}, expected string) error {
 		actual = reflect.TypeOf(v).Kind().String()
 	}
 	return fmt.Errorf("expect <%s>, got <%s>", expected, actual)
+}
+
+type ValidateFn func(v interface{}) error
+
+// validate that the underlined element of given interface is a slice of the given type.
+func validateSlice(elementValidateFn ValidateFn) ValidateFn {
+	return func(v interface{}) error {
+		vs, ok := v.([]interface{})
+		if !ok {
+			return errorType(v, "slice")
+		}
+
+		for _, v := range vs {
+			if err := elementValidateFn(v); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+}
+
+type ConvertFn func(v interface{}) interface{}
+
+func convertStringSlice(v interface{}) interface{} {
+	vs, _ := v.([]interface{})
+
+	out := make([]string, 0, len(vs))
+	for _, v := range vs {
+		out = append(out, v.(string))
+	}
+
+	return out
 }
 
 // validate that the underlined element of given interface is a boolean.

@@ -126,7 +126,7 @@ func TestParse(t *testing.T) {
 		wantOut *Params
 	}{
 		{
-			name: "supports []string",
+			name: "supports []string for postgres",
 			conf: Config{
 				Model: new(struct {
 					Name   string   `rql:"filter"`
@@ -144,7 +144,7 @@ func TestParse(t *testing.T) {
 			}`),
 			wantOut: &Params{
 				Limit:      25,
-				FilterExp:  "name = ? AND powers \\? ?",
+				FilterExp:  "name = ? AND powers \\?| ?",
 				FilterArgs: []interface{}{"Superman", []string{"x-ray vision", "laser eyes"}},
 			},
 		},
